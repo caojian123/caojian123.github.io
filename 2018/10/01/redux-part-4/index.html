@@ -42,7 +42,13 @@
   </section>
 
   <section class="article-entry">
-    <h1>combineReducers 的实现</h1>
+    <h1 id="combineReducers-的实现"><a href="#combineReducers-的实现" class="headerlink" title="combineReducers 的实现"></a>combineReducers 的实现</h1><p>前几篇有介绍 combineReducers 的基本使用， 它实现了接受多个 reducer 函数，并进行整合，最终化成一个rootReducer。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">const &#123; combineReducers &#125; = Redux;</span><br><span class="line">const rootReducer = combineReducers(&#123;</span><br><span class="line">	reducer1,</span><br><span class="line">	reducer2,</span><br><span class="line">	...</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>使用 combineReducers 开发者可以按照应用状态进行分治，拆分成多个reducers，有利于开发和维护。理解了combineReducers的作用后，接下来我们来实现一个自己的combineReducers。<br>combineReducers 的返回值是一个归一化的rootReducer函数，也就是说，combineReducers 返回的函数是一个标准的reducer，它的参数接收 state 和 action，因此有了如下的框架。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">const combineReducers = reducers =&gt; &#123;</span><br><span class="line">	return (state,action) =&gt; &#123;</span><br><span class="line">		...</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>然后，思考 combineReducers 返回的函数的返回值应该是什么？ combineReducers 返回的函数式归一化的 rootReducer， 其返回值应该是经过各个 reducers 计算后的全新页面数据状态，及更新之后的state。<br>为了获得参数，即所有 reducers 的计算结果， 我们使用Object.keys对参数reducers的key进行遍历，Object.keys(reducers)返回由所有参数reducers的key所组成的一个数组。这样我们就可以根据数组的每一项进行state的计算，因为这个数组的每一项都是自定义的reducer函数。考虑到最终的返回结果应该是完整的state，因此使用数组的reduce方法对state进行计算并累加。这种情况下，使用一个空对象作为reduce方法的计算初始值。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">const combineReducers = reducers = &gt; &#123;</span><br><span class="line">	return (state,action) =&gt; &#123;</span><br><span class="line">		return Object.keys(reducers).reduce(</span><br><span class="line">			(nextState, key) =&gt; &#123;</span><br><span class="line">				nextState = reducers[key](state,action);</span><br><span class="line">				return nextState;</span><br><span class="line">			&#125;,</span><br><span class="line">			&#123;&#125;</span><br><span class="line">		)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在调用 combineReducers时， 参数是一个对象，每一项的值都是一个reducer 函数，键值是这个reducer函数所处理的页面状态数据树的名字。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">	statePart1: reducer1,</span><br><span class="line">	statePart2: reducer2,</span><br><span class="line">	statePart3: reducer3,</span><br><span class="line">	...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>接下来，我们使用Object.keys将reducers这个对象的所有key抽离为数组，得到：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[statePart1, statePart2, statePart3,...]</span><br></pre></td></tr></table></figure></p>
+<p>接着对这个数组使用reduce方法，在上面代码中reduces[key]为相关reducer函数（reducer1, reducer2, …）； nextState[key]则是这个reducer函数对应的state部分。最后，在初始值为一个空的对象对各个statePart进行计算，得到最终的全局state。</p>
 
   </section>
 </article>
@@ -62,7 +68,7 @@
   class="twitter-share-button"
   data-size="large"
   data-via="DrakeLeung"
-  href="https://twitter.com/intent/tweet?text=>combineReducers 的实现"
+  href="https://twitter.com/intent/tweet?text= id="combineReducers"
 >
   Tweet
 </a>
